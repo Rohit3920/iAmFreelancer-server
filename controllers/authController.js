@@ -50,7 +50,7 @@ const registerUser = async (req, res) => {
 };
 
 const loginUser = async (req, res) => {
-    const { email, password, userRole} = req.body;
+    const { email, password, userRole } = req.body;
 
     // Basic validation
     if (!email || !password) {
@@ -150,4 +150,78 @@ const changePassword = async (req, res) => {
     }
 };
 
-module.exports = { registerUser, loginUser, getUserByEmail, changePassword };
+const getUser = async (req, res) => {
+    try {
+        const users = await User.find().select('-password');
+        res.status(200).json(users);
+    } catch (error) {
+        console.error('Error fetching all users:', error);
+        res.status(500).json({ message: 'Server error', error: error.message });
+    }
+};
+
+const getUserById = async (req, res) => {
+    try {
+        const { userId } = req.params;
+
+        const user = await User.findById(userId).select('-password');
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+        res.status(200).json(user);
+    } catch (error) {
+        console.error('Error fetching user by ID:', error);
+        res.status(500).json({ message: 'Server error', error: error.message });
+    }
+};
+
+const updateUser = async (req, res) => {
+    try {
+        const { userId } = req.params;
+        let updateData = { ...req.body };
+
+        if (updateData.password) {
+            delete updateData.password;
+            console.warn('Password update attempted via updateUser. Please use the /change-password endpoint for password changes.');
+        }
+
+        const user = await User.findById(userId);
+
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+        updateData.updatedAt = Date.now();
+        Object.assign(user, updateData);
+        await user.save();
+
+        const userWithoutPassword = user.toObject();
+        delete userWithoutPassword.password;
+
+        res.status(200).json({ message: 'User updated successfully', user: userWithoutPassword });
+
+    } catch (error) {
+        console.error('Error updating user:', error);
+
+        if (error.code === 11000) {
+            return res.status(409).json({ message: 'Duplicate key error', details: error.keyValue });
+        }
+        if (error.name === 'ValidationError') {
+            return res.status(400).json({ message: 'Validation error', details: error.message });
+        }
+        if (error.name === 'CastError' && error.kind === 'ObjectId') {
+            return res.status(400).json({ message: 'Invalid User ID format' });
+        }
+
+        res.status(500).json({ message: 'Server error', error: error.message });
+    }
+};
+
+module.exports = {
+    registerUser,
+    loginUser,
+    getUserByEmail,
+    changePassword,
+    getUser,
+    getUserById,
+    updateUser
+};

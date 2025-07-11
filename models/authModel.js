@@ -1,6 +1,50 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 
+const addressSchema = new mongoose.Schema({
+    street: { type: String },
+    city: { type: String },
+    state: { type: String },
+    zipCode: { type: String },
+    country: { type: String },
+    addressType: {
+        type: String,
+        enum: ['Permanent', 'Current']
+    }
+});
+
+const basicSchema = new mongoose.Schema({
+    dob: { type: Date },
+    gender: {
+        type: String,
+        enum: ['Male', 'Female', 'Other']
+    },
+    language: [{ type: String }],
+    contactNo: { type: String },
+});
+
+const DomainSchema = new mongoose.Schema({
+    description: {
+        type: String,
+        trim: true,
+        maxlength: 1000
+    },
+    freelancerDomain: { type: String },
+    domainExperience: { type: Number },
+    technologies: [{ type: String }],
+});
+
+const educationSchema = new mongoose.Schema({
+    institutionName: { type: String, required: true },
+    degree: { type: String, required: true },
+    fieldOfStudy: { type: String },
+    // startDate: { type: Date },
+    // endDate: { type: Date },
+    graduationYear: { type: Date },
+    grade: { type: String },
+    description: { type: String, maxlength: 500 },
+});
+
 const userSchema = new mongoose.Schema({
     username: {
         type: String,
@@ -14,10 +58,6 @@ const userSchema = new mongoose.Schema({
         unique: true,
         trim: true,
     },
-    description: {
-        type: String,
-        trim: true,
-    },
     password: {
         type: String,
         required: true,
@@ -28,6 +68,12 @@ const userSchema = new mongoose.Schema({
         enum: ['user', 'admin', 'freelancer'],
         default: 'user',
     },
+
+    address: [addressSchema],
+    basic: [basicSchema],
+    DomainDetail: [DomainSchema],
+    education: [educationSchema],
+
     createdAt: {
         type: Date,
         default: Date.now,
@@ -51,6 +97,4 @@ userSchema.methods.comparePassword = async function (candidatePassword) {
     return await bcrypt.compare(candidatePassword, this.password);
 };
 
-const User = mongoose.model('User', userSchema);
-
-module.exports = User;
+module.exports = mongoose.model('User', userSchema);
