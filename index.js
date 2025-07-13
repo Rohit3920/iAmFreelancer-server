@@ -2,6 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const authRoutes = require('./routes/authRoutes')
+const gigRoutes = require('./routes/gigRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -23,7 +24,10 @@ app.use(cors(corsOptions));
 const http = require('http').Server(app);
 
 
+
+
 app.use('/api/auth', authRoutes)
+app.use('/api/gig', gigRoutes);
 
 app.get('/', (req, res) => {
     res.send('The freelancer (iAmFreelancer) website backend running...');
