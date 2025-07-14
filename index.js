@@ -3,6 +3,7 @@ const express = require('express');
 const cors = require('cors');
 const authRoutes = require('./routes/authRoutes')
 const gigRoutes = require('./routes/gigRoutes');
+const uploadRoutes = require('./routes/uploadRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -23,10 +24,8 @@ app.use(cors(corsOptions));
 // app.use(cors());
 const http = require('http').Server(app);
 
-
-
-
 app.use('/api/auth', authRoutes)
+app.use('/api/file', uploadRoutes);
 app.use('/api/gig', gigRoutes);
 
 app.get('/', (req, res) => {

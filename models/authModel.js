@@ -41,7 +41,7 @@ const educationSchema = new mongoose.Schema({
     // startDate: { type: Date },
     // endDate: { type: Date },
     graduationYear: { type: Date },
-    grade: { type: String },
+    percentage: { type: Number, min: 0, max: 100 },
     description: { type: String, maxlength: 500 },
 });
 
@@ -62,6 +62,10 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: true,
         minlength: 6,
+    },
+    profilePicture: {
+        type: String,
+        default: 'https://jrursuvjlrsjqmaqizto.supabase.co/storage/v1/object/public/freelancer//noavatar-image.jpg',
     },
     userRole: {
         type: String,
