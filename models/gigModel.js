@@ -13,8 +13,12 @@ const GigSchema = new mongoose.Schema({
         type: Number,
         required: true,
     },
-    category: {
+    categoryMain: {
         type: String,
+        required: true,
+    },
+    categorySub: {
+        type: [String],
         required: true,
     },
     userId: {
@@ -50,13 +54,17 @@ const GigSchema = new mongoose.Schema({
         type: Number,
         default: 1,
     },
-    features: {
+    coreFeatures: {
         type: [String],
         default: [],
     },
-    sales: {
-        type: Number,
-        default: 0,
+    serviceType: {
+        type: String,
+        default: '',
+    },
+    searchTags: {
+        type: [String],
+        default: ['gig', 'gigs'],
     },
 }, {
     timestamps: true
