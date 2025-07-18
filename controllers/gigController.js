@@ -106,6 +106,25 @@ async function getGigById(req, res) {
     }
 }
 
+// getGigByUserId
+async function getGigByUserId(req, res) {
+    const {userId} = req.params;
+
+    try{
+        const gig = await Gig.find({userId : userId})
+        if (!gig) {
+            return res.status(404).json({ message: 'Gig not found.' });
+        }
+        res.status(200).json(gig);
+    }catch (error) {
+        console.error('Error fetching gig by userId:', error);
+        if (error.name === 'CastError' && error.kind === 'ObjectId') {
+            return res.status(400).json({ message: 'Invalid Gig UserId format.' });
+        }
+        res.status(500).json({ message: 'Server error while fetching gig.' });
+    }
+}
+
 async function updateGig(req, res) {
     const { id } = req.params;
     const updateData = req.body;
@@ -170,6 +189,7 @@ async function deleteGig(req, res) {
 module.exports = {
     createGig,
     getAllGigs,
+    getGigByUserId,
     getGigById,
     updateGig,
     deleteGig

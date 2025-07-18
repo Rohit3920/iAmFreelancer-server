@@ -4,6 +4,7 @@ const {
     createGig,
     getAllGigs,
     getGigById,
+    getGigByUserId,
     updateGig,
     deleteGig
 } = require('../controllers/gigController');
@@ -11,6 +12,7 @@ const {
 
 router.post('/', createGig);
 router.get('/', getAllGigs);
+router.get('/user/:userId', getGigByUserId);
 router.get('/:id', getGigById);
 router.put('/:id', updateGig);
 router.delete('/:id', deleteGig);
