@@ -8,6 +8,8 @@ const gigRoutes = require('./routes/gigRoutes');
 const uploadRoutes = require('./routes/uploadRoutes');
 const messageRoutes = require('./routes/messageRoutes');
 const Message = require('./models/messageModel');
+const reviewCommentRoutes = require('./routes/reviewCommentRoutes')
+const orderRoutes = require('./routes/orderRoutes')
 
 const app = express();
 const server = http.createServer(app);
@@ -36,6 +38,8 @@ app.use('/api/auth', authRoutes);
 app.use('/api/file', uploadRoutes);
 app.use('/api/gig', gigRoutes);
 app.use('/api/messages', messageRoutes);
+app.use('/api/review', reviewCommentRoutes)
+app.use('/api/orders', orderRoutes)
 
 app.get('/', (req, res) => {
     res.send('The freelancer (iAmFreelancer) website backend running...');

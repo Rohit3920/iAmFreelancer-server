@@ -70,4 +70,4 @@ const GigSchema = new mongoose.Schema({
     timestamps: true
 });
 
-module.exports = mongoose.model('gig', GigSchema);
+module.exports = mongoose.model('Gig', GigSchema);
