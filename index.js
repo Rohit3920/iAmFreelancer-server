@@ -10,6 +10,7 @@ const messageRoutes = require('./routes/messageRoutes');
 const Message = require('./models/messageModel');
 const reviewCommentRoutes = require('./routes/reviewCommentRoutes')
 const orderRoutes = require('./routes/orderRoutes')
+const searchRoutes = require('./routes/searchRoutes');
 
 const app = express();
 const server = http.createServer(app);
@@ -40,6 +41,7 @@ app.use('/api/gig', gigRoutes);
 app.use('/api/messages', messageRoutes);
 app.use('/api/review', reviewCommentRoutes)
 app.use('/api/orders', orderRoutes)
+app.use('/api/search', searchRoutes)
 
 app.get('/', (req, res) => {
     res.send('The freelancer (iAmFreelancer) website backend running...');
@@ -72,7 +74,7 @@ io.on('connection', (socket) => {
     });
 
     // socket.on('disconnect', () => {
-    //     console.log(`User disconnected: ${socket.id}`);
+    //     console.log(`User disconnected: ${socket.id}`); 
     // });
 });
 
