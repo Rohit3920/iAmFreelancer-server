@@ -129,8 +129,6 @@ async function updateGig(req, res) {
     const { id } = req.params;
     const updateData = req.body;
 
-    console.log('Update Gig Request Body:', req.body);
-
     try {
         const existingGig = await Gig.findById(id);
         if (!existingGig) {

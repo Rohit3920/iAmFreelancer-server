@@ -17,17 +17,6 @@ const getMessages = async (req, res) => {
     }
 };
 
-// const getMessageUser = (req, res) => {
-//     console.log('Current User ID:', req.params.userId);
-//     try {
-//         const currentUserId = req.params.userId;
-//         res.status(200).json({ message: 'Fetching messages for user.', currentUserId });
-//         console.log('Fetching messages for user:', currentUserId);
-//     } catch (error) {
-//         console.error('Error fetching message user:', error);
-//     }
-// };
-
 const getMessageUser = async (req, res) => {
     try {
         const currentUserId = req.params.userId;

@@ -97,7 +97,6 @@ exports.updateOrderStatus = catchAsync(async (req, res, next) => {
             });
         }
     } else if (userRole === 'admin') {
-        // Admins can change status freely
     } else {
         return res.status(403).json({
             status: 'fail',
@@ -107,6 +106,26 @@ exports.updateOrderStatus = catchAsync(async (req, res, next) => {
 
     order.status = status;
     await order.save();
+
+    res.status(200).json({
+        status: 'success',
+        data: {
+            order,
+        },
+    });
+});
+
+exports.getOrderById = catchAsync(async (req, res, next) => {
+    const { orderId } = req.params;
+
+    const order = await Order.findById(orderId);
+
+    if (!order) {
+        return res.status(404).json({
+            status: 'fail',
+            message: 'No order found with that ID.',
+        });
+    }
 
     res.status(200).json({
         status: 'success',

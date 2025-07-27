@@ -36,7 +36,6 @@ exports.createReview = catchAsync(async (req, res, next) => {
 });
 
 exports.getGigReviews = catchAsync(async (req, res, next) => {
-
     const reviews = await ReviewComments.find();
 
     res.status(200).json({
@@ -52,9 +51,12 @@ exports.getReview = catchAsync(async (req, res, next) => {
     const review = await ReviewComments.findById(req.params.id);
 
     if (!review) {
-        return res.status(404).json({
-            status: 'fail',
+        return res.status(200).json({
+            status: 'success',
             message: 'No review found with that ID.',
+            data: {
+                review: null,
+            },
         });
     }
 
@@ -110,10 +112,37 @@ exports.deleteReview = catchAsync(async (req, res, next) => {
         });
     }
 
-    await ReviewComments.deleteOne();
+    await ReviewComments.deleteOne({ _id: req.params.id }); // Corrected to delete the found review
 
     res.status(204).json({
         status: 'success',
         data: null,
+    });
+});
+
+exports.getReviewsByUserId = catchAsync(async (req, res, next) => {
+    // Populate the 'gigId' field to get gig information, specifically the 'title'
+    const reviews = await ReviewComments.find({ userId: req.params.userId })
+        .populate({
+            path: 'gigId',
+            select: 'title', // Only select the 'title' field from the Gig model
+        });
+
+    if (reviews.length === 0) {
+        return     res.status(200).json({
+        status: 'success',
+        results: reviews.length,
+        data: {
+            reviews : null,
+        },
+    });
+    }
+
+    res.status(200).json({
+        status: 'success',
+        results: reviews.length,
+        data: {
+            reviews,
+        },
     });
 });
