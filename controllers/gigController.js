@@ -80,7 +80,7 @@ async function createGig(req, res) {
 
 async function getAllGigs(req, res) {
     try {
-        const gigs = await Gig.find().populate('userId', 'username email');
+        const gigs = await Gig.find().populate('userId', 'username email  profilePicture');
         res.status(200).json(gigs);
     } catch (error) {
         console.error('Error fetching gigs:', error);
