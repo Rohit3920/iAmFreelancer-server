@@ -20,7 +20,7 @@ const PORT = process.env.PORT || 5000;
 require('./utils/config');
 
 var corsOptions = {
-    origin: process.env.CLIENT_URL || "*",
+    origin: process.env.CLIENT_URL || "http://localhost:5173",
     methods: ["POST", "GET", "DELETE", "PUT"],
     credentials: true
 };

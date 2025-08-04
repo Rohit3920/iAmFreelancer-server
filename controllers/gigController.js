@@ -34,14 +34,14 @@ async function createGig(req, res) {
             totalStars: 0,
             starNumber: 0,
             cover: cover || '',
-            images: images || [],
+            images: Array.isArray(images) ? images : [],
             shortTitle: shortTitle || title.substring(0, 50),
             shortDesc: shortDesc || description.substring(0, 100),
-            deliveryTime: deliveryTime || 3,
-            revisionNumber: revisionNumber || 1,
-            coreFeatures: coreFeatures || [],
+            deliveryTime: Number(deliveryTime) || 3,
+            revisionNumber: Number(revisionNumber) || 1,
+            coreFeatures: Array.isArray(coreFeatures) ? coreFeatures : [],
             serviceType: serviceType || 0,
-            searchTags: searchTags || [],
+            searchTags: Array.isArray(searchTags) ? searchTags : [],
         });
 
         res.status(201).json({
@@ -66,7 +66,6 @@ async function createGig(req, res) {
             message: 'Gig created successfully!'
         });
     } catch (error) {
-        console.error('Error creating gig:', error);
         if (error.name === 'ValidationError') {
             const errors = {};
             for (let field in error.errors) {
@@ -74,17 +73,16 @@ async function createGig(req, res) {
             }
             return res.status(400).json({ message: 'Validation Error', errors });
         }
-        res.status(500).json({ message: 'Server error while creating gig.' });
+        res.status(500).json({ message: 'Server error while creating gig.', error: error.message });
     }
 }
 
 async function getAllGigs(req, res) {
     try {
-        const gigs = await Gig.find().populate('userId', 'username email  profilePicture');
+        const gigs = await Gig.find().populate('userId', 'username email profilePicture');
         res.status(200).json(gigs);
     } catch (error) {
-        console.error('Error fetching gigs:', error);
-        res.status(500).json({ message: 'Server error while fetching gigs.' });
+        res.status(500).json({ message: 'Server error while fetching gigs.', error: error.message });
     }
 }
 
@@ -92,36 +90,33 @@ async function getGigById(req, res) {
     const { id } = req.params;
 
     try {
-        const gig = await Gig.findById(id).populate('userId', 'username email');
+        const gig = await Gig.findById(id).populate('userId', 'username email profilePicture');
         if (!gig) {
             return res.status(404).json({ message: 'Gig not found.' });
         }
         res.status(200).json(gig);
     } catch (error) {
-        console.error('Error fetching gig by ID:', error);
-        if (error.name === 'CastError' && error.kind === 'ObjectId') {
+        if (error.name === 'CastError') {
             return res.status(400).json({ message: 'Invalid Gig ID format.' });
         }
-        res.status(500).json({ message: 'Server error while fetching gig.' });
+        res.status(500).json({ message: 'Server error while fetching gig.', error: error.message });
     }
 }
 
-// getGigByUserId
 async function getGigByUserId(req, res) {
-    const {userId} = req.params;
+    const { userId } = req.params;
 
-    try{
-        const gig = await Gig.find({userId : userId})
-        if (!gig) {
-            return res.status(404).json({ message: 'Gig not found.' });
+    try {
+        const gigs = await Gig.find({ userId }).populate('userId', 'username email profilePicture');
+        if (!gigs || gigs.length === 0) {
+            return res.status(404).json({ message: 'No gigs found for this user.' });
         }
-        res.status(200).json(gig);
-    }catch (error) {
-        console.error('Error fetching gig by userId:', error);
-        if (error.name === 'CastError' && error.kind === 'ObjectId') {
+        res.status(200).json(gigs);
+    } catch (error) {
+        if (error.name === 'CastError') {
             return res.status(400).json({ message: 'Invalid Gig UserId format.' });
         }
-        res.status(500).json({ message: 'Server error while fetching gig.' });
+        res.status(500).json({ message: 'Server error while fetching gig.', error: error.message });
     }
 }
 
@@ -130,27 +125,12 @@ async function updateGig(req, res) {
     const updateData = req.body;
 
     try {
-        const existingGig = await Gig.findById(id);
-        if (!existingGig) {
+        const updatedGig = await Gig.findByIdAndUpdate(id, updateData, { new: true, runValidators: true }).populate('userId', 'username email profilePicture');
+        if (!updatedGig) {
             return res.status(404).json({ message: 'Gig not found.' });
         }
-
-        Object.assign(existingGig, updateData);
-
-        if (updateData.categorySub && !Array.isArray(updateData.categorySub)) {
-            existingGig.categorySub = [updateData.categorySub];
-        }
-
-        await existingGig.save();
-
-        res.status(200).json({ message: 'Gig updated successfully', gig: existingGig });
-
+        res.status(200).json({ message: 'Gig updated successfully', gig: updatedGig });
     } catch (error) {
-        console.error('Error updating gig:', error);
-
-        if (error.code === 11000) {
-            return res.status(409).json({ message: 'A gig with this title already exists. Please choose a different title.', details: error.keyValue });
-        }
         if (error.name === 'ValidationError') {
             const errors = {};
             for (let field in error.errors) {
@@ -158,10 +138,9 @@ async function updateGig(req, res) {
             }
             return res.status(400).json({ message: 'Validation error during gig update', details: errors });
         }
-        if (error.name === 'CastError' && error.kind === 'ObjectId') {
+        if (error.name === 'CastError') {
             return res.status(400).json({ message: 'Invalid Gig ID format' });
         }
-
         res.status(500).json({ message: 'Server error while updating gig.', error: error.message });
     }
 }
@@ -176,11 +155,10 @@ async function deleteGig(req, res) {
         }
         res.status(200).json({ message: 'Gig deleted successfully!' });
     } catch (error) {
-        console.error('Error deleting gig:', error);
-        if (error.name === 'CastError' && error.kind === 'ObjectId') {
+        if (error.name === 'CastError') {
             return res.status(400).json({ message: 'Invalid Gig ID format.' });
         }
-        res.status(500).json({ message: 'Server error while deleting gig.' });
+        res.status(500).json({ message: 'Server error while deleting gig.', error: error.message });
     }
 }
 
